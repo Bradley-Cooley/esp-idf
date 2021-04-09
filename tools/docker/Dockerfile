@@ -2,13 +2,13 @@ FROM ubuntu:18.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+# We need libpython2.7 due to GDB tools
 RUN apt-get update && apt-get install -y \
     apt-utils \
     bison \
     ca-certificates \
     ccache \
     check \
-    cmake \
     curl \
     flex \
     git \
@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     libusb-1.0-0-dev \
     make \
     ninja-build \
+    libpython2.7 \
     python3 \
     python3-pip \
     unzip \
@@ -36,8 +37,8 @@ RUN python -m pip install --upgrade pip virtualenv
 #   IDF_CLONE_BRANCH_OR_TAG=release/vX.Y
 #   IDF_CHECKOUT_REF=<some commit on release/vX.Y branch>.
 
-ARG IDF_CLONE_URL=https://github.com/espressif/esp-idf.git
-ARG IDF_CLONE_BRANCH_OR_TAG=master
+ARG IDF_CLONE_URL=https://github.com/Bradley-Cooley/esp-idf.git
+ARG IDF_CLONE_BRANCH_OR_TAG=audio/stack_on_psram_v3.3
 ARG IDF_CHECKOUT_REF=
 
 ENV IDF_PATH=/opt/esp/idf
@@ -53,11 +54,14 @@ RUN echo IDF_CHECKOUT_REF=$IDF_CHECKOUT_REF IDF_CLONE_BRANCH_OR_TAG=$IDF_CLONE_B
       git submodule update --init --recursive; \
     fi
 
-RUN $IDF_PATH/install.sh && \
-  rm -rf $IDF_TOOLS_PATH/dist
+# Install all the required tools, plus CMake
+RUN $IDF_PATH/tools/idf_tools.py --non-interactive install \
+  && $IDF_PATH/tools/idf_tools.py --non-interactive install cmake \
+  && $IDF_PATH/tools/idf_tools.py --non-interactive install-python-env \
+  && rm -rf $IDF_TOOLS_PATH/dist
 
-RUN mkdir -p $HOME/.ccache && \
-  touch $HOME/.ccache/ccache.conf
+# Ccache is installed, enable it by default
+ENV IDF_CCACHE_ENABLE=1
 
 COPY entrypoint.sh /opt/esp/entrypoint.sh
 
