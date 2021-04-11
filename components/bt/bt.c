@@ -45,7 +45,7 @@
 #include "esp_clk.h"
 #include "esp_coexist_internal.h"
 #include "hli_api.h"
-#include "esp_core_dump.h"
+//#include "esp_core_dump.h"
 
 #ifdef CONFIG_BLUEDROID_ENABLED
 #include "esp_bt_main.h"
@@ -1148,11 +1148,11 @@ esp_err_t esp_bt_controller_init(esp_bt_controller_config_t *cfg)
     btdm_controller_status = ESP_BT_CONTROLLER_STATUS_INITED;
 
 #ifdef RMT_DEBUG_LOG_EN
-#ifdef CONFIG_ESP32_ENABLE_COREDUMP
-    esp_log_dump_init(btdm_rmt_get_log_buffer_size, btdm_rmt_get_fixed_log_addr);
-#else
-    #warning "coredump function is not enabled"
-#endif
+//#ifdef CONFIG_ESP32_ENABLE_COREDUMP
+    //esp_log_dump_init(btdm_rmt_get_log_buffer_size, btdm_rmt_get_fixed_log_addr);
+//#else
+    //#warning "coredump function is not enabled"
+//#endif
 #endif
     return ESP_OK;
 
